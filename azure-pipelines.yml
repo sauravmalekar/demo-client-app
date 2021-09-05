@@ -10,16 +10,17 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: AzureResourceManagerTemplateDeployment@3
-  inputs:
-    deploymentScope: 'Resource Group'
-    azureResourceManagerConnection: 'DemoClientApp-conn'
-    subscriptionId: '4c26050a-f22f-4323-a0ff-09960ae6d345'
-    action: 'Create Or Update Resource Group'
-    resourceGroupName: 'rg-saurav'
-    location: 'Central India'
-    templateLocation: 'URL of the file'
-    csmFileLink: 'https://raw.githubusercontent.com/sauravmalekar/demo-client-app/main/rgTemplates/template.json'
-    overrideParameters: '-projectName demoClientApp'
-    deploymentMode: 'Incremental'
-    deploymentName: 'DeployPipelineTemplate'
+
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: 'DemoClientApp-conn'
+      subscriptionId: '4c26050a-f22f-4323-a0ff-09960ae6d345'
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: 'rg-saurav'
+      location: 'Central India'
+      templateLocation: 'URL of the file'
+      csmFileLink: 'https://raw.githubusercontent.com/sauravmalekar/demo-client-app/main/rgTemplates/template.json'
+      csmParametersFileLink: 'https://raw.githubusercontent.com/sauravmalekar/demo-client-app/main/rgTemplates/parameters.json'
+      deploymentMode: 'Incremental'
+      deploymentName: 'DeployPipelineTemplate'
