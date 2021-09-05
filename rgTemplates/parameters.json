@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "apis_client_api_path": {
+            "value": null
+        },
+        "connections_azureblob_name": {
+            "value": null
+        },
+        "connections_servicebus_name": {
+            "value": null
+        },
+        "workflows_logicApp_TestARM_name": {
+            "value": null
+        },
+        "service_apim_TestARM_name": {
+            "value": null
+        },
+        "namespaces_servicebus_TestARM_name": {
+            "value": null
+        },
+        "storageAccounts_storageaccounttestarm_name": {
+            "value": null
+        },
+        "integrationAccounts_intergationaccount_TestARM_name": {
+            "value": null
+        }
+    }
+}

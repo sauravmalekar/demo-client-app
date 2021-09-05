@@ -1,0 +1,574 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "apis_client_api_path": {
+            "type": "SecureString"
+        },
+        "connections_azureblob_name": {
+            "defaultValue": "azureblob",
+            "type": "String"
+        },
+        "connections_servicebus_name": {
+            "defaultValue": "servicebus",
+            "type": "String"
+        },
+        "workflows_logicApp_TestARM_name": {
+            "defaultValue": "logicApp-TestARM",
+            "type": "String"
+        },
+        "service_apim_TestARM_name": {
+            "defaultValue": "apim-TestARM",
+            "type": "String"
+        },
+        "namespaces_servicebus_TestARM_name": {
+            "defaultValue": "servicebus-TestARM",
+            "type": "String"
+        },
+        "storageAccounts_storageaccounttestarm_name": {
+            "defaultValue": "storageaccounttestarm",
+            "type": "String"
+        },
+        "integrationAccounts_intergationaccount_TestARM_name": {
+            "defaultValue": "intergationaccount-TestARM",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ApiManagement/service",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[parameters('service_apim_TestARM_name')]",
+            "location": "Central India",
+            "sku": {
+                "name": "Consumption",
+                "capacity": 0
+            },
+            "identity": {
+                "principalId": "d9927e16-c5f7-46b8-8cfb-f945a626d2f9",
+                "tenantId": "02aa9fc1-18bc-4798-a020-e01c854dd434",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "publisherEmail": "saurav.malekar@lntinfotech.com",
+                "publisherName": "LTI",
+                "notificationSenderEmail": "apimgmt-noreply@mail.windowsazure.com",
+                "hostnameConfigurations": [
+                    {
+                        "type": "Proxy",
+                        "hostName": "apim-testarm.azure-api.net",
+                        "negotiateClientCertificate": false,
+                        "defaultSslBinding": true,
+                        "certificateSource": "BuiltIn"
+                    }
+                ],
+                "customProperties": {
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls11": "false",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Protocols.Tls10": "false",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls11": "false",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Tls10": "false",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Security.Backend.Protocols.Ssl30": "false",
+                    "Microsoft.WindowsAzure.ApiManagement.Gateway.Protocols.Server.Http2": "false"
+                },
+                "virtualNetworkType": "None",
+                "apiVersionConstraint": {}
+            }
+        },
+        {
+            "type": "Microsoft.Logic/integrationAccounts",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('integrationAccounts_intergationaccount_TestARM_name')]",
+            "location": "centralindia",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[parameters('namespaces_servicebus_TestARM_name')]",
+            "location": "Central India",
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+            },
+            "properties": {
+                "disableLocalAuth": false,
+                "zoneRedundant": false
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('storageAccounts_storageaccounttestarm_name')]",
+            "location": "centralindia",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "allowCrossTenantReplication": true,
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": true,
+                "allowSharedKeyAccess": true,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('connections_azureblob_name')]",
+            "location": "centralindia",
+            "kind": "V1",
+            "properties": {
+                "displayName": "Store Data in Blob",
+                "statuses": [
+                    {
+                        "status": "Connected"
+                    }
+                ],
+                "customParameterValues": {},
+                "createdTime": "2021-09-04T08:57:34.007184Z",
+                "changedTime": "2021-09-04T08:57:34.007184Z",
+                "api": {
+                    "name": "[parameters('connections_azureblob_name')]",
+                    "displayName": "Azure Blob Storage",
+                    "description": "Microsoft Azure Storage provides a massively scalable, durable, and highly available storage for data on the cloud, and serves as the data storage solution for modern applications. Connect to Blob Storage to perform various operations such as create, update, get and delete on blobs in your Azure Storage account.",
+                    "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1509/1.0.1509.2535/', parameters('connections_azureblob_name'), '/icon.png')]",
+                    "brandColor": "#804998",
+                    "id": "[concat('/subscriptions/4c26050a-f22f-4323-a0ff-09960ae6d345/providers/Microsoft.Web/locations/centralindia/managedApis/', parameters('connections_azureblob_name'))]",
+                    "type": "Microsoft.Web/locations/managedApis"
+                },
+                "testLinks": [
+                    {
+                        "requestUri": "[concat('https://management.azure.com:443/subscriptions/4c26050a-f22f-4323-a0ff-09960ae6d345/resourceGroups/rg-TestARM/providers/Microsoft.Web/connections/', parameters('connections_azureblob_name'), '/extensions/proxy/testconnection?api-version=2016-06-01')]",
+                        "method": "get"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('connections_servicebus_name')]",
+            "location": "centralindia",
+            "kind": "V1",
+            "properties": {
+                "displayName": "Service Bus to Logic App",
+                "statuses": [
+                    {
+                        "status": "Connected"
+                    }
+                ],
+                "customParameterValues": {},
+                "nonSecretParameterValues": {},
+                "createdTime": "2021-09-04T08:51:21.8841634Z",
+                "changedTime": "2021-09-04T08:51:21.8841634Z",
+                "api": {
+                    "name": "[parameters('connections_servicebus_name')]",
+                    "displayName": "Service Bus",
+                    "description": "Connect to Azure Service Bus to send and receive messages. You can perform actions such as send to queue, send to topic, receive from queue, receive from subscription, etc.",
+                    "iconUri": "[concat('https://connectoricons-prod.azureedge.net/release-2021-08-13-apseth/1.0.1507.2527/', parameters('connections_servicebus_name'), '/icon.png')]",
+                    "brandColor": "#c4d5ff",
+                    "id": "[concat('/subscriptions/4c26050a-f22f-4323-a0ff-09960ae6d345/providers/Microsoft.Web/locations/centralindia/managedApis/', parameters('connections_servicebus_name'))]",
+                    "type": "Microsoft.Web/locations/managedApis"
+                },
+                "testLinks": []
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('service_apim_TestARM_name'), '/client-api')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+            ],
+            "properties": {
+                "displayName": "Client API",
+                "apiRevision": "1",
+                "subscriptionRequired": true,
+                "serviceUrl": "https://servicebus-TestARM.servicebus.windows.net",
+                "protocols": [
+                    "https"
+                ],
+                "isCurrent": true,
+                "path": "[parameters('apis_client_api_path')]"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/policies",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('service_apim_TestARM_name'), '/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+            ],
+            "properties": {
+                "value": "<!--\r\n    IMPORTANT:\r\n    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.\r\n    - Only the <forward-request> policy element can appear within the <backend> section element.\r\n    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.\r\n    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.\r\n    - To add a policy position the cursor at the desired insertion point and click on the round button associated with the policy.\r\n    - To remove a policy, delete the corresponding policy statement from the policy document.\r\n    - Policies are applied in the order of their appearance, from the top down.\r\n-->\r\n<policies>\r\n  <inbound></inbound>\r\n  <backend>\r\n    <forward-request />\r\n  </backend>\r\n  <outbound></outbound>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/subscriptions",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('service_apim_TestARM_name'), '/master')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+            ],
+            "properties": {
+                "scope": "[concat(resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name')), '/')]",
+                "displayName": "Built-in all-access subscription",
+                "state": "active",
+                "allowTracing": true
+            }
+        },
+        {
+            "type": "Microsoft.Logic/integrationAccounts/maps",
+            "apiVersion": "2016-06-01",
+            "name": "[concat(parameters('integrationAccounts_intergationaccount_TestARM_name'), '/XMLtoJsonv2')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/integrationAccounts', parameters('integrationAccounts_intergationaccount_TestARM_name'))]"
+            ],
+            "properties": {
+                "mapType": "Liquid",
+                "contentLink": {
+                    "uri": "https://prod-16.centralindia.logic.azure.com:443/integrationAccounts/68596b30a24a4e919b0b6aa820418a7b/maps/XMLtoJsonv2/contents/Value?api-version=2015-08-01-preview&se=2021-09-05T09%3A00%3A32.4042887Z&sp=%2Fmaps%2FXMLtoJsonv2%2Fread&sv=1.0&sig=X3sRKEFKZE90UguqADm1ZUejbC4wpxUAP-23LMsm-ZQ",
+                    "contentVersion": "\"0x8D96F7085D821C1\"",
+                    "contentSize": 433,
+                    "contentHash": {
+                        "algorithm": "md5",
+                        "value": "fyH11VJ4j0NoKSTX5c9aoQ=="
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('namespaces_servicebus_TestARM_name'), '/RootManageSharedAccessKey')]",
+            "location": "Central India",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_servicebus_TestARM_name'))]"
+            ],
+            "properties": {
+                "rights": [
+                    "Manage",
+                    "Listen",
+                    "Send"
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/networkRuleSets",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('namespaces_servicebus_TestARM_name'), '/default')]",
+            "location": "Central India",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_servicebus_TestARM_name'))]"
+            ],
+            "properties": {
+                "defaultAction": "Deny",
+                "virtualNetworkRules": [],
+                "ipRules": []
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/queues",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('namespaces_servicebus_TestARM_name'), '/client-data-queue')]",
+            "location": "Central India",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_servicebus_TestARM_name'))]"
+            ],
+            "properties": {
+                "lockDuration": "PT30S",
+                "maxSizeInMegabytes": 1024,
+                "requiresDuplicateDetection": false,
+                "requiresSession": false,
+                "defaultMessageTimeToLive": "P1D",
+                "deadLetteringOnMessageExpiration": false,
+                "enableBatchedOperations": true,
+                "duplicateDetectionHistoryTimeWindow": "PT10M",
+                "maxDeliveryCount": 5,
+                "status": "Active",
+                "autoDeleteOnIdle": "P10675199DT2H48M5.4775807S",
+                "enablePartitioning": false,
+                "enableExpress": false
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_storageaccounttestarm_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccounttestarm_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "changeFeed": {
+                    "enabled": false
+                },
+                "restorePolicy": {
+                    "enabled": false
+                },
+                "containerDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                },
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                },
+                "isVersioningEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_storageaccounttestarm_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccounttestarm_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "protocolSettings": {
+                    "smb": {}
+                },
+                "cors": {
+                    "corsRules": []
+                },
+                "shareDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/queueServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_storageaccounttestarm_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccounttestarm_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_storageaccounttestarm_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccounttestarm_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('service_apim_TestARM_name'), '/client-api/post-data')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_apim_TestARM_name'), 'client-api')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+            ],
+            "properties": {
+                "displayName": "Post data",
+                "method": "POST",
+                "urlTemplate": "/",
+                "templateParameters": [],
+                "responses": []
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_storageaccounttestarm_name'), '/default/client-data-container')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_storageaccounttestarm_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_storageaccounttestarm_name'))]"
+            ],
+            "properties": {
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('service_apim_TestARM_name'), '/client-api/post-data/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_apim_TestARM_name'), 'client-api', 'post-data')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_apim_TestARM_name'), 'client-api')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+            ],
+            "properties": {
+                "value": "<!--\r\n    IMPORTANT:\r\n    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.\r\n    - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.\r\n    - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.\r\n    - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.\r\n    - To remove a policy, delete the corresponding policy statement from the policy document.\r\n    - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.\r\n    - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.\r\n    - Policies are applied in the order of their appearance, from the top down.\r\n    - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.\r\n-->\r\n<policies>\r\n  <inbound>\r\n    <base />\r\n    <authentication-managed-identity resource=\"https://servicebus.azure.net\" output-token-variable-name=\"msi-access-token\" ignore-error=\"false\" />\r\n    <set-header name=\"Authorization\" exists-action=\"override\">\r\n      <value>@((string)context.Variables[\"msi-access-token\"])</value>\r\n    </set-header>\r\n    <set-backend-service base-url=\"https://servicebus-TestARM.servicebus.windows.net/client-data-queue/messages\" />\r\n    <json-to-xml apply=\"always\" consider-accept-header=\"true\" parse-date=\"true\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_logicApp_TestARM_name')]",
+            "location": "centralindia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/integrationAccounts', parameters('integrationAccounts_intergationaccount_TestARM_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_azureblob_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_servicebus_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "integrationAccount": {
+                    "id": "[resourceId('Microsoft.Logic/integrationAccounts', parameters('integrationAccounts_intergationaccount_TestARM_name'))]"
+                },
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_message_is_received_in_a_queue_(auto-complete)": {
+                            "recurrence": {
+                                "frequency": "Minute",
+                                "interval": 3
+                            },
+                            "evaluatedRecurrence": {
+                                "frequency": "Minute",
+                                "interval": 3
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['servicebus']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/@{encodeURIComponent(encodeURIComponent('client-data-queue'))}/messages/head",
+                                "queries": {
+                                    "queueType": "Main"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Compose": {
+                            "runAfter": {
+                                "Transform_XML_to_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": "@body('Transform_XML_to_JSON')"
+                        },
+                        "Create_blob_(V2)": {
+                            "runAfter": {
+                                "Compose": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "@outputs('Compose')",
+                                "headers": {
+                                    "ReadFileMetadataFromServer": true
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/files",
+                                "queries": {
+                                    "folderPath": "/client-data-container",
+                                    "name": "clientdata-@{guid()}",
+                                    "queryParametersSingleEncoded": true
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        },
+                        "Transform_XML_to_JSON": {
+                            "runAfter": {},
+                            "type": "Liquid",
+                            "kind": "XmlToJson",
+                            "inputs": {
+                                "content": "@base64ToString(triggerBody()?['ContentData'])",
+                                "integrationAccount": {
+                                    "map": {
+                                        "name": "XMLtoJsonv2"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureblob": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_azureblob_name'))]",
+                                "connectionName": "azureblob",
+                                "id": "/subscriptions/4c26050a-f22f-4323-a0ff-09960ae6d345/providers/Microsoft.Web/locations/centralindia/managedApis/azureblob"
+                            },
+                            "servicebus": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_servicebus_name'))]",
+                                "connectionName": "servicebus",
+                                "id": "/subscriptions/4c26050a-f22f-4323-a0ff-09960ae6d345/providers/Microsoft.Web/locations/centralindia/managedApis/servicebus"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
