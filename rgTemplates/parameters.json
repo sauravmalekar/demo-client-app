@@ -3,28 +3,28 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "apis_client_api_path": {
-            "value": null
+            "value": "/"
         },
         "connections_azureblob_name": {
-            "value": null
+            "value": "azureblob"
         },
         "connections_servicebus_name": {
-            "value": null
+            "value": "servicebus"
         },
         "workflows_logicApp_TestARM_name": {
-            "value": null
+            "value": "la-template"
         },
         "service_apim_TestARM_name": {
-            "value": null
+            "value": "apim-template"
         },
         "namespaces_servicebus_TestARM_name": {
-            "value": null
+            "value": "sb-template"
         },
         "storageAccounts_storageaccounttestarm_name": {
-            "value": null
+            "value": "satemplatexxxxx"
         },
         "integrationAccounts_intergationaccount_TestARM_name": {
-            "value": null
+            "value": "ia-template"
         }
     }
 }
