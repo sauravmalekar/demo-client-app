@@ -218,7 +218,14 @@
                                                         - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.\r\n    
                                                         - To add a policy position the cursor at the desired insertion point and click on the round button associated with the policy.\r\n    
                                                         - To remove a policy, delete the corresponding policy statement from the policy document.\r\n    
-                                                        - Policies are applied in the order of their appearance, from the top down.\r\n-->\r\n<policies>\r\n  <inbound></inbound>\r\n  <backend>\r\n    <forward-request />\r\n  </backend>\r\n  <outbound></outbound>\r\n</policies>",
+                                                        - Policies are applied in the order of their appearance, from the top down.\r\n-->\r\n
+                                                        <policies>\r\n  
+                                                          <inbound></inbound>\r\n  
+                                                          <backend>\r\n     
+                                                            <forward-request />\r\n  
+                                                          </backend>\r\n  
+                                                          <outbound></outbound>\r\n
+                                                        </policies>",
                 "format": "xml"
             }
         },
@@ -436,7 +443,27 @@
                                                         - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.\r\n    
                                                         - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.\r\n    
                                                         - Policies are applied in the order of their appearance, from the top down.\r\n    
-                                                        - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.\r\n-->\r\n<policies>\r\n  <inbound>\r\n    <base />\r\n    <authentication-managed-identity resource=\"https://servicebus.azure.net\" output-token-variable-name=\"msi-access-token\" ignore-error=\"false\" />\r\n    <set-header name=\"Authorization\" exists-action=\"override\">\r\n      <value>@((string)context.Variables[\"msi-access-token\"])</value>\r\n    </set-header>\r\n    <set-backend-service base-url=\"https://servicebus-demoapp.servicebus.windows.net/client-data-queue/messages\" />\r\n    <json-to-xml apply=\"always\" consider-accept-header=\"true\" parse-date=\"true\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                                                        - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.\r\n-->\r\n
+                                                        <policies>\r\n  
+                                                          <inbound>\r\n    
+                                                            <base />\r\n    
+                                                            <authentication-managed-identity resource=\"https://servicebus.azure.net\" output-token-variable-name=\"msi-access-token\" ignore-error=\"false\" />\r\n    
+                                                            <set-header name=\"Authorization\" exists-action=\"override\">\r\n      
+                                                              <value>@((string)context.Variables[\"msi-access-token\"])</value>\r\n    
+                                                            </set-header>\r\n    
+                                                            <set-backend-service base-url=\"https://servicebus-demoapp.servicebus.windows.net/client-data-queue/messages\" />\r\n    
+                                                            <json-to-xml apply=\"always\" consider-accept-header=\"true\" parse-date=\"true\" />\r\n  
+                                                          </inbound>\r\n  
+                                                          <backend>\r\n    
+                                                            <base />\r\n  
+                                                          </backend>\r\n  
+                                                          <outbound>\r\n    
+                                                            <base />\r\n  
+                                                          </outbound>\r\n  
+                                                          <on-error>\r\n    
+                                                            <base />\r\n  
+                                                          </on-error>\r\n
+                                                        </policies>",
                 "format": "xml"
             }
         },
