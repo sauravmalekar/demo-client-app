@@ -1,30 +1,30 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-  "contentVersion": "1.0.0.0",
-  "parameters": { 
-      "apis_client_api_path": {
-          "value": "/"
-      },
-      "connections_azureblob_name": {
-          "value": "azureblob"
-      },
-      "connections_servicebus_name": {
-          "value": "servicebus"
-      },
-      "workflows_logicApp_TestARM_name": {
-          "value": "la-rg-saurav"
-      },
-      "service_apim_TestARM_name": {
-          "value": "apim-rg-saurav-11"
-      },
-      "namespaces_servicebus_TestARM_name": {
-          "value": "sb-rg-saurav"
-      },
-      "storageAccounts_storageaccounttestarm_name": {
-          "value": "saresultxrgxxsauravxxx"
-      },
-      "integrationAccounts_intergationaccount_TestARM_name": {
-          "value": "ia-rg-saurav"
-      }
-  }
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": { 
+        "apis_client_api_path": {
+            "value": "/"
+        },
+        "connections_azureblob_name": {
+            "value": "azureblob"
+        },
+        "connections_servicebus_name": {
+            "value": "servicebus"
+        },
+        "workflows_logicApp_TestARM_name": {
+            "value": "la-rg-saurav"
+        },
+        "service_apim_TestARM_name": {
+            "value": "apim-rg-saurav-002"
+        },
+        "namespaces_servicebus_TestARM_name": {
+            "value": "servicebus-demoapp"
+        },
+        "storageAccounts_storageaccounttestarm_name": {
+            "value": "sargsaurav001xxxxx"
+        },
+        "integrationAccounts_intergationaccount_TestARM_name": {
+            "value": "ia-rg-saurav-002"
+        }
+    }
 }

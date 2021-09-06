@@ -2,6 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        // "roleDefinitionID": {
+        //     "type": "string",
+        //     "metadata": {
+        //         "description": "Specifies the role definition ID used in the role assignment."
+        //     }
+        // },
         "apis_client_api_path": {
             "type": "SecureString"
         },
@@ -49,8 +55,6 @@
                 "capacity": 0
             },
             "identity": {
-                "principalId": null,
-                "tenantId": null,
                 "type": "SystemAssigned"
             },
             "properties": {
@@ -201,6 +205,41 @@
         },
 
         {
+            "type": "Microsoft.ApiManagement/service/policies",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('service_apim_TestARM_name'), '/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+            ],
+            "properties": {
+                "value": "<!--\r\n    IMPORTANT:\r\n    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.\r\n    
+                                                        - Only the <forward-request> policy element can appear within the <backend> section element.\r\n    
+                                                        - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.\r\n    
+                                                        - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.\r\n    
+                                                        - To add a policy position the cursor at the desired insertion point and click on the round button associated with the policy.\r\n    
+                                                        - To remove a policy, delete the corresponding policy statement from the policy document.\r\n    
+                                                        - Policies are applied in the order of their appearance, from the top down.\r\n-->\r\n<policies>\r\n  <inbound></inbound>\r\n  <backend>\r\n    <forward-request />\r\n  </backend>\r\n  <outbound></outbound>\r\n</policies>",
+                "format": "xml"
+            }
+        },
+
+        // {
+        //     "type": "Microsoft.ApiManagement/service/subscriptions",
+        //     "apiVersion": "2021-01-01-preview",
+        //     "name": "[concat(parameters('service_apim_TestARM_name'), '/master')]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+        //     ],
+        //     "properties": {
+        //         "scope": "[concat(resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name')), '/')]",
+        //         "displayName": "Built-in all-access subscription",
+        //         "state": "active",
+        //         "allowTracing": true
+        //     }
+        // },
+
+
+        {
             "type": "Microsoft.Logic/integrationAccounts/maps",
             "apiVersion": "2016-06-01",
             "name": "[concat(parameters('integrationAccounts_intergationaccount_TestARM_name'), '/XMLtoJsonv2')]",
@@ -210,12 +249,27 @@
             "properties": {
                 "mapType": "Liquid",
                 "contentLink": {
-                    "uri": "https://raw.githubusercontent.com/sauravmalekar/demo-client-app/main/j2x.liquid"
-                    
+                    "uri": "https://raw.githubusercontent.com/sauravmalekar/demo-client-app/main/j2x.liquid"      
                 },
                 "contentType": "text/plain"
             }
         },
+
+        // {
+        //     "type": "Microsoft.Authorization/roleAssignments",
+        //     "apiVersion": "2018-09-01-preview",
+        //     "name": "[guid(parameters('roleDefinitionID'), subscription().id)]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_servicebus_TestARM_name'))]",
+        //         "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+        //     ],
+        //     "properties": {
+        //         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        //         "principalId": "[subscription().principalId]",
+        //         "scope": "[subscription().id]"
+        //     }
+        // },
+
         {
             "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
             "apiVersion": "2018-01-01-preview",
@@ -256,6 +310,7 @@
                 "enableExpress": false
             }
         },
+
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2019-06-01",
@@ -360,6 +415,29 @@
                 "defaultEncryptionScope": "$account-encryption-key",
                 "denyEncryptionScopeOverride": false,
                 "publicAccess": "None"
+            }
+        },
+
+        {
+            "type": "Microsoft.ApiManagement/service/apis/operations/policies",
+            "apiVersion": "2021-01-01-preview",
+            "name": "[concat(parameters('service_apim_TestARM_name'), '/client-api/post-data/policy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service/apis/operations', parameters('service_apim_TestARM_name'), 'client-api', 'post-data')]",
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('service_apim_TestARM_name'), 'client-api')]",
+                "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+            ],
+            "properties": {
+                "value": "<!--\r\n    IMPORTANT:\r\n    - Policy elements can appear only within the <inbound>, <outbound>, <backend> section elements.\r\n    
+                                                        - To apply a policy to the incoming request (before it is forwarded to the backend service), place a corresponding policy element within the <inbound> section element.\r\n    
+                                                        - To apply a policy to the outgoing response (before it is sent back to the caller), place a corresponding policy element within the <outbound> section element.\r\n    
+                                                        - To add a policy, place the cursor at the desired insertion point and select a policy from the sidebar.\r\n    
+                                                        - To remove a policy, delete the corresponding policy statement from the policy document.\r\n    
+                                                        - Position the <base> element within a section element to inherit all policies from the corresponding section element in the enclosing scope.\r\n    
+                                                        - Remove the <base> element to prevent inheriting policies from the corresponding section element in the enclosing scope.\r\n    
+                                                        - Policies are applied in the order of their appearance, from the top down.\r\n    
+                                                        - Comments within policy elements are not supported and may disappear. Place your comments between policy elements or at a higher level scope.\r\n-->\r\n<policies>\r\n  <inbound>\r\n    <base />\r\n    <authentication-managed-identity resource=\"https://servicebus.azure.net\" output-token-variable-name=\"msi-access-token\" ignore-error=\"false\" />\r\n    <set-header name=\"Authorization\" exists-action=\"override\">\r\n      <value>@((string)context.Variables[\"msi-access-token\"])</value>\r\n    </set-header>\r\n    <set-backend-service base-url=\"https://servicebus-demoapp.servicebus.windows.net/client-data-queue/messages\" />\r\n    <json-to-xml apply=\"always\" consider-accept-header=\"true\" parse-date=\"true\" />\r\n  </inbound>\r\n  <backend>\r\n    <base />\r\n  </backend>\r\n  <outbound>\r\n    <base />\r\n  </outbound>\r\n  <on-error>\r\n    <base />\r\n  </on-error>\r\n</policies>",
+                "format": "xml"
             }
         },
 
