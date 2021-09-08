@@ -96,6 +96,23 @@
         },
 
         {
+            "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+            "apiVersion": "2018-01-01-preview",
+            "name": "[concat(parameters('serviceBusName'), '/RootManageSharedAccessKey')]",
+            "location": "Central India",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusName'))]"
+            ],
+            "properties": {
+                "rights": [
+                    "Manage",
+                    "Listen",
+                    "Send"
+                ]
+            }
+        },
+
+        {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2019-06-01",
             "name": "[parameters('storageAccountName')]",
@@ -246,7 +263,8 @@
                 "displayName": "ServiceBusConnection",
                 "customParameterValues": {},
                 "api": {
-                    "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+                    "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]",
+                    "type": "Microsoft.Web/locations/managedApis"
                 },
                 "parameterValues": {
                     "connectionString": "[listKeys(resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', parameters('serviceBusName'), 'RootManageSharedAccessKey'), '2017-04-01').primaryConnectionString]"
