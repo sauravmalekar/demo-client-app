@@ -9,16 +9,16 @@
             "value": "queuenew"
         },
         "storageAccountName": {
-            "value": "sax1x1x1"       
+            "value": "sa12112"       
         },
         "storageSKU": {
             "value": "Standard_LRS"
         },
         "blobConnectionName": {
-            "value": "azblob"
+            "value": "azureblob"
         },
         "serviceBusConnectionName": {
-            "value": "azbus"        
+            "value": "servicebus"        
         },
         "integrationAccountName": {
             "value": "ia-new"       
