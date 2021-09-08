@@ -15,7 +15,7 @@
             "value": "la-rg-saurav"
         },
         "service_apim_TestARM_name": {
-            "value": "apim-rg-saurav-002"
+            "value": "apim-rg-saurav-003"
         },
         "namespaces_servicebus_TestARM_name": {
             "value": "servicebus-demoapp"
