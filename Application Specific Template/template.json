@@ -1,0 +1,274 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "serviceBusName": {
+            "type": "String",
+            "metadata": {
+                "description": "Service Bus Namespace Name"
+            }
+        },
+        "serviceBusQueueName": {
+            "type": "String",
+            "metadata":{
+                "description": "Service Bus Queue Name"
+            }
+        },
+        "storageAccountName": {
+            "type": "String",
+            "metadata": {
+                "description": "Storage Account Name"
+            }        
+        },
+        "storageSKU": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Standard_ZRS",
+                "Premium_LRS",
+                "Premium_ZRS",
+                "Standard_GZRS",
+                "Standard_RAGZRS"
+            ]
+        },
+
+        "blobConnectionName": {
+            "type": "String",
+            "metadata": {
+                "description": "Azure Blob Connection Name"
+            }
+        },
+        "serviceBusConnectionName": {
+            "type": "String",
+            "metadata": {
+                "description": "Service Bus Connection Name"
+            }        
+        },
+        "integrationAccountName": {
+            "type": "String",
+            "metadata": {
+                "description": "Integration Account Name"
+            }        
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "apiVersion": "2017-04-01",
+            "name": "[parameters('serviceBusName')]",
+            "type": "Microsoft.ServiceBus/Namespaces",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+            },
+            "properties": {
+                "disableLocalAuth": false,
+                "zoneRedundant": false
+            },
+            "resources": [
+                {
+                    "apiVersion": "2017-04-01",
+                    "name": "[parameters('serviceBusQueueName')]",
+                    "type": "Queues",
+                    "dependsOn": [
+                        "[concat('Microsoft.ServiceBus/namespaces/', parameters('serviceBusName'))]"
+                    ],
+                    "properties": {
+                    "lockDuration": "PT30S",
+                    "maxSizeInMegabytes": 1024,
+                    "requiresDuplicateDetection": false,
+                    "requiresSession": false,
+                    "defaultMessageTimeToLive": "P1D",
+                    "deadLetteringOnMessageExpiration": false,
+                    "enableBatchedOperations": true,
+                    "duplicateDetectionHistoryTimeWindow": "PT10M",
+                    "maxDeliveryCount": 5,
+                    "status": "Active",
+                    "enablePartitioning": false,
+                    "enableExpress": false
+                    }
+                }
+            ]
+        },
+
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[parameters('storageSKU')]",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "allowCrossTenantReplication": true,
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": true,
+                "allowSharedKeyAccess": true,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Storage/storageAccounts/blobServices",
+                    "apiVersion": "2019-06-01",
+                    "name": "[concat(parameters('storageAccountName'), '/default')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                    ],
+                    "sku": {
+                        "name": "Standard_LRS",
+                        "tier": "Standard"
+                    },
+                    "properties": {
+                        "changeFeed": {
+                            "enabled": false
+                        },
+                        "restorePolicy": {
+                            "enabled": false
+                        },
+                        "containerDeleteRetentionPolicy": {
+                            "enabled": true,
+                            "days": 7
+                        },
+                        "cors": {
+                            "corsRules": []
+                        },
+                        "deleteRetentionPolicy": {
+                            "enabled": true,
+                            "days": 7
+                        },
+                        "isVersioningEnabled": false
+                    },
+                    "resources":[
+                        {
+                            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+                            "apiVersion": "2019-06-01",
+                            "name": "[concat(parameters('storageAccountName'), '/default/client-data-container')]",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
+                                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+                            ],
+                            "properties": {
+                                "defaultEncryptionScope": "$account-encryption-key",
+                                "denyEncryptionScopeOverride": false,
+                                "publicAccess": "None"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+
+        {
+            "type": "Microsoft.Logic/integrationAccounts",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('integrationAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "state": "Enabled"
+            },
+            "resources": [
+                {    
+                    "type": "Microsoft.Logic/integrationAccounts/maps",
+                    "apiVersion": "2016-06-01",
+                    "name": "[concat(parameters('integrationAccountName'), '/XMLtoJsonv2')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Logic/integrationAccounts', parameters('integrationAccountName'))]"
+                    ],
+                    "properties": {
+                        "mapType": "Liquid",
+                        "contentLink": {
+                            "uri": "https://raw.githubusercontent.com/sauravmalekar/demo-client-app/main/j2x.liquid"      
+                        },
+                        "contentType": "text/plain"
+                    }
+                }
+                
+            ]
+        },
+
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('blobConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind":"V1",
+            "properties": {
+                "displayName": "BlobConnection",
+                "api": {
+                    "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/azureblob')]"
+                },
+                "parameterValues": {
+                    "accessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]",
+                    "accountName": "[parameters('storageAccountName')]"
+                }
+            }
+        },
+
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('serviceBusConnectionName')]",
+            "location": "[resourceGroup().location]",
+             "kind": "V1",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusName'))]"
+            ],
+            "properties": {
+                "displayName": "ServiceBusConnection",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat(subscription().id,'/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+                },
+                "parameterValues": {
+                    "connectionString": "[listKeys(resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', parameters('serviceBusName'), 'RootManageSharedAccessKey'), '2017-04-01').primaryConnectionString]"
+                }
+            }
+        }
+        
+        // {
+        //     "type": "Microsoft.Authorization/roleAssignments",
+        //     "apiVersion": "2018-09-01-preview",
+        //     "name": "[guid(parameters('roleDefinitionID'), subscription().id)]",
+        //     "dependsOn": [
+        //         "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusName'))]",
+        //         "[resourceId('Microsoft.ApiManagement/service', parameters('service_apim_TestARM_name'))]"
+        //     ],
+        //     "properties": {
+        //         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
+        //         "principalId": "[subscription().principalId]",
+        //         "scope": "[subscription().id]"
+        //     }
+        // },
+
+
+    ]
+}

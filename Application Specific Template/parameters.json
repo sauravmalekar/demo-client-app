@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": { 
+        "serviceBusName": {
+            "value": "sb-new"
+        },
+        "serviceBusQueueName": {
+            "value": "queuenew"
+        },
+        "storageAccountName": {
+            "value": "sax1x1x1"       
+        },
+        "storageSKU": {
+            "value": "Standard_LRS"
+        },
+        "blobConnectionName": {
+            "value": "azblob"
+        },
+        "serviceBusConnectionName": {
+            "value": "azbus"        
+        },
+        "integrationAccountName": {
+            "value": "ia-new"       
+        }
+    }
+}
