@@ -1,0 +1,138 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicAppName": {
+            "type": "String",
+            "metadata": {
+                "description": "Logic App Name"
+            }
+        }
+    },
+    "variables": {
+        "integrationAccountExternalID": "[concat('/subscriptions/4c26050a-f22f-4323-a0ff-09960ae6d345/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Logic/integrationAccounts/ia-new')]",
+        "azureBlobConnectionExternalID": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/azureblob')]",
+        "serviceBusConnectionExternalID": "[concat(subscription().id,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Web/connections/servicebus')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('logicAppName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "state": "Enabled",
+                "integrationAccount": {
+                    "id": "[variables('integrationAccountExternalID')]"
+                },
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_message_is_received_in_a_queue_(auto-complete)": {
+                            "recurrence": {
+                                "frequency": "Minute",
+                                "interval": 3
+                            },
+                            "evaluatedRecurrence": {
+                                "frequency": "Minute",
+                                "interval": 3
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['servicebus']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/@{encodeURIComponent(encodeURIComponent('queuenew'))}/messages/head",
+                                "queries": {
+                                    "queueType": "Main"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Compose": {
+                            "runAfter": {
+                                "Transform_XML_to_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Compose",
+                            "inputs": "@body('Transform_XML_to_JSON')"
+                        },
+                        "Create_blob_(V2)": {
+                            "runAfter": {
+                                "Compose": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "@outputs('Compose')",
+                                "headers": {
+                                    "ReadFileMetadataFromServer": true
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/datasets/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/files",
+                                "queries": {
+                                    "folderPath": "/client-data-container",
+                                    "name": "clientdata-@{guid()}",
+                                    "queryParametersSingleEncoded": true
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        },
+                        "Transform_XML_to_JSON": {
+                            "runAfter": {},
+                            "type": "Liquid",
+                            "kind": "XmlToJson",
+                            "inputs": {
+                                "content": "@base64ToString(triggerBody()?['ContentData'])",
+                                "integrationAccount": {
+                                    "map": {
+                                        "name": "XMLtoJsonv2"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureblob": {
+                                "connectionId": "[variables('azureBlobConnectionExternalID')]",
+                                "connectionName": "azureblob",
+                                "id": "[concat('/subscriptions/4c26050a-f22f-4323-a0ff-09960ae6d345/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/azureblob')]"
+                            },
+                            "servicebus": {
+                                "connectionId": "[variables('serviceBusConnectionExternalID')]",
+                                "connectionName": "servicebus",
+                                "id": "[concat('/subscriptions/4c26050a-f22f-4323-a0ff-09960ae6d345/providers/Microsoft.Web/locations/',resourceGroup().location,'/managedApis/servicebus')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
