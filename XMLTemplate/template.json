@@ -1,0 +1,368 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "connections_azureblob_name": {
+            "defaultValue": "azureblob",
+            "type": "String"
+        },
+        "workflows_la_sea_001_name": {
+            "defaultValue": "la-sea-001",
+            "type": "String"
+        },
+        "storageAccounts_sasea111xxx_name": {
+            "defaultValue": "sasea111xxx",
+            "type": "String"
+        },
+        "integrationAccounts_ia_sea_001_name": {
+            "defaultValue": "ia-sea-001",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/integrationAccounts",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('integrationAccounts_ia_sea_001_name')]",
+            "location": "southeastasia",
+            "sku": {
+                "name": "Free"
+            },
+            "properties": {
+                "state": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('storageAccounts_sasea111xxx_name')]",
+            "location": "southeastasia",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "allowCrossTenantReplication": true,
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": true,
+                "allowSharedKeyAccess": true,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('connections_azureblob_name')]",
+            "location": "southeastasia",
+            "kind": "V1",
+            "properties": {
+                "displayName": "LAtoBlob",
+                "statuses": [
+                    {
+                        "status": "Connected"
+                    }
+                ],
+                "customParameterValues": {},
+                "createdTime": "2021-09-29T09:52:58.2766822Z",
+                "changedTime": "2021-09-29T09:52:58.2766822Z",
+                "api": {
+                    "name": "[parameters('connections_azureblob_name')]",
+                    "displayName": "Azure Blob Storage",
+                    "description": "Microsoft Azure Storage provides a massively scalable, durable, and highly available storage for data on the cloud, and serves as the data storage solution for modern applications. Connect to Blob Storage to perform various operations such as create, update, get and delete on blobs in your Azure Storage account.",
+                    "iconUri": "[concat('https://connectoricons-prod.azureedge.net/releases/v1.0.1518/1.0.1518.2564/', parameters('connections_azureblob_name'), '/icon.png')]",
+                    "brandColor": "#804998",
+                    "id": "[concat('/subscriptions/5bd3f162-a030-443f-b431-3a6f5e8e23a3/providers/Microsoft.Web/locations/southeastasia/managedApis/', parameters('connections_azureblob_name'))]",
+                    "type": "Microsoft.Web/locations/managedApis"
+                },
+                "testLinks": [
+                    {
+                        "requestUri": "[concat('https://management.azure.com:443/subscriptions/5bd3f162-a030-443f-b431-3a6f5e8e23a3/resourceGroups/rg-saurav/providers/Microsoft.Web/connections/', parameters('connections_azureblob_name'), '/extensions/proxy/testconnection?api-version=2016-06-01')]",
+                        "method": "get"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Logic/integrationAccounts/maps",
+            "apiVersion": "2016-06-01",
+            "name": "[concat(parameters('integrationAccounts_ia_sea_001_name'), '/XMLtoXML')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/integrationAccounts', parameters('integrationAccounts_ia_sea_001_name'))]"
+            ],
+            "properties": {
+                "mapType": "Xslt",
+                "contentLink": {
+                    "uri": "https://prod-03.southeastasia.logic.azure.com:443/integrationAccounts/4b68f87cdc2c480ba325c3c1e8222d66/maps/XMLtoXML/contents/Value?api-version=2015-08-01-preview&se=2021-09-29T13%3A53%3A54.4635504Z&sp=%2Fmaps%2FXMLtoXML%2Fread&sv=1.0&sig=UlUnusbJk-6jdINoVoYXggW7m02q4UvsUYBzTKM-xMg",
+                    "contentVersion": "\"0x8D983270D99772C\"",
+                    "contentSize": 1084,
+                    "contentHash": {
+                        "algorithm": "md5",
+                        "value": "eN/JtUXX7qcsLqYTaPd9AA=="
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_sasea111xxx_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sasea111xxx_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                },
+                "isVersioningEnabled": false,
+                "changeFeed": {
+                    "enabled": false
+                },
+                "restorePolicy": {
+                    "enabled": false
+                },
+                "containerDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_sasea111xxx_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sasea111xxx_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "protocolSettings": {
+                    "smb": {}
+                },
+                "cors": {
+                    "corsRules": []
+                },
+                "shareDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/queueServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_sasea111xxx_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sasea111xxx_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_sasea111xxx_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sasea111xxx_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_la_sea_001_name')]",
+            "location": "southeastasia",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/integrationAccounts', parameters('integrationAccounts_ia_sea_001_name'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('connections_azureblob_name'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "integrationAccount": {
+                    "id": "[resourceId('Microsoft.Logic/integrationAccounts', parameters('integrationAccounts_ia_sea_001_name'))]"
+                },
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "properties": {
+                                        "Employees": {
+                                            "properties": {
+                                                "Employee": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "email": {
+                                                                "type": "string"
+                                                            },
+                                                            "first_name": {
+                                                                "type": "string"
+                                                            },
+                                                            "gender": {
+                                                                "type": "string"
+                                                            },
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "last_name": {
+                                                                "type": "string"
+                                                            },
+                                                            "role": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "first_name",
+                                                            "last_name",
+                                                            "email",
+                                                            "gender",
+                                                            "role"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Create_block_blob_(V2)": {
+                            "runAfter": {
+                                "Transform_XML": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "@body('Transform_XML')",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureblob']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/codeless/datasets/@{encodeURIComponent('AccountNameFromSettings')}/CreateBlockBlob",
+                                "queries": {
+                                    "folderPath": "/employeeinfo",
+                                    "name": "employees.xml"
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "Create_block_blob_(V2)": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "kind": "Http",
+                            "inputs": {
+                                "body": "@body('Transform_XML')",
+                                "statusCode": 200
+                            }
+                        },
+                        "Transform_XML": {
+                            "runAfter": {},
+                            "type": "Xslt",
+                            "inputs": {
+                                "content": "@{triggerBody()}",
+                                "integrationAccount": {
+                                    "map": {
+                                        "name": "XMLtoXML"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureblob": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('connections_azureblob_name'))]",
+                                "connectionName": "azureblob",
+                                "id": "/subscriptions/5bd3f162-a030-443f-b431-3a6f5e8e23a3/providers/Microsoft.Web/locations/southeastasia/managedApis/azureblob"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccounts_sasea111xxx_name'), '/default/employeeinfo')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_sasea111xxx_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sasea111xxx_name'))]"
+            ],
+            "properties": {
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "Container"
+            }
+        }
+    ]
+}
