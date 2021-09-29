@@ -2,17 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "connections_azureblob_name": {
-            "value": null
+        "blobConnectionName": {
+            "value": "azureblob"
         },
-        "workflows_la_sea_001_name": {
-            "value": null
+        "logicAppName": {
+            "value": "la-sea-002"
         },
-        "storageAccounts_sasea111xxx_name": {
-            "value": null
+        "storageAccountName": {
+            "value": "sasea002xxx"
         },
-        "integrationAccounts_ia_sea_001_name": {
-            "value": null
+        "integrationAccountName": {
+            "value": "ia-sea-002"
         }
     }
 }
